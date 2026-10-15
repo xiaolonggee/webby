@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "adapters": [
+    {"id":"alma","name":"Alma","category":"AI / 模型","bundleIDs":["com.yetone.alma"],"processNames":[],"entries":[],"settingsHint":"打开 Alma 后按 ⌘,，或点击侧栏齿轮。未确认 Web 设置入口。","note":"原生设置面板；内部监听端口不是管理页面。","source":"https://alma.now/docs/settings/"},
+    {"id":"mlx-serve","name":"MLX Serve","category":"AI / 模型","bundleIDs":[],"processNames":["mlx-serve"],"entries":[{"kind":"application","port":11234,"path":"/","titleMarker":"MLX Serve Studio"},{"kind":"management","port":11234,"path":"/#settings","titleMarker":"MLX Serve Studio"},{"kind":"api","port":11234,"path":"/v1"}],"note":"ddalcu 版本提供 Studio；设置入口管理 Studio 界面/连接。引擎启动参数仍由原生 App 或 CLI 管理。其他同名实现、非默认端口不自动套用 Web 入口。","source":"https://github.com/ddalcu/mlx-serve/blob/main/app-web/src/lib/state/router.svelte.ts"},
+    {"id":"magpie","name":"Magpie","category":"AI / 模型","bundleIDs":[],"processNames":["magpie"],"entries":[{"kind":"api","port":3425,"path":"/v1"}],"settingsHint":"若已安装桌面版，在应用内管理 Providers 和 Settings。未确认本机 Web 管理路由。","note":"API 网关与管理界面分开；不会把返回 JSON 的根路径作为管理页面。","source":"https://github.com/yetone/magpie"},
+    {"id":"docker","name":"Docker Desktop","category":"开发工具","bundleIDs":["com.docker.docker"],"processNames":["com.docker.backend"],"entries":[],"settingsHint":"打开 Docker Desktop 的 Dashboard；使用应用内 Settings。","note":"原生 Dashboard。容器映射端口并不是 Docker 的管理入口。","source":"https://docs.docker.com/desktop/use-desktop/"},
+    {"id":"antigravity","name":"Antigravity","category":"开发工具","bundleIDs":["com.google.antigravity"],"processNames":[],"entries":[],"settingsHint":"使用编辑器内的设置菜单。未声明设置深链接。","note":"由已安装应用包身份识别，打开原生编辑器，不推测内部 Web 端口。","source":"本机应用包 Info.plist / CFBundleIdentifier"},
+    {"id":"jetbrains-idea","name":"IntelliJ IDEA","category":"开发工具","bundleIDs":["com.jetbrains.intellij","com.jetbrains.intellij.ce"],"processNames":["idea"],"entries":[],"settingsHint":"使用 IDE 内的 Settings。","note":"IDE 内部监听不代表 Web 管理页。","source":"本机应用包 Info.plist / 可执行程序身份"},
+    {"id":"jetbrains-webstorm","name":"WebStorm","category":"开发工具","bundleIDs":["com.jetbrains.WebStorm"],"processNames":["webstorm"],"entries":[],"settingsHint":"使用 IDE 内的 Settings。","note":"打开原生 IDE；预览或调试端口仅保留在诊断详情。","source":"本机应用包 Info.plist / 可执行程序身份"},
+    {"id":"redis","name":"Redis","category":"数据服务","bundleIDs":[],"processNames":["redis-server"],"entries":[],"note":"Redis 协议服务，无内置 Web 管理页。可自行指定已安装客户端或外部管理页面。","source":"https://redis.io/docs/latest/develop/reference/protocol-spec/"},
+    {"id":"postgres","name":"PostgreSQL","category":"数据服务","bundleIDs":[],"processNames":["postgres"],"entries":[],"note":"数据库协议服务；pgAdmin 等管理工具是独立应用，不能从数据库监听自动推断其 URL。","source":"https://www.postgresql.org/docs/current/protocol.html"}
+  ]
+}

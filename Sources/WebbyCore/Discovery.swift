@@ -1,15 +1,27 @@
 import Foundation
 import Darwin
 
-public struct Snapshot: Sendable { public var listeners: [Listener]; public var directories: [Int: String] }
+public struct Snapshot: Sendable { public var listeners: [Listener]; public var directories: [Int: String]; public var identities: [Int: ProcessIdentity] }
 public enum LocalDiscovery {
     public static func scan() throws -> Snapshot {
         let text = try run(["+c", "0", "-nP", "-a", "-u", String(getuid()), "-iTCP", "-sTCP:LISTEN", "-Fpcun"])
+        var identities: [Int: ProcessIdentity] = [:]
         let listeners = DiscoveryParser.parse(text).filter { listener in
             var buffer = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
             let count = proc_pidpath(Int32(listener.pid), &buffer, UInt32(buffer.count))
             guard count > 0 else { return kill(Int32(listener.pid), 0) == 0 || errno == EPERM } // Keep live unknown candidates; drop exited processes.
             let path = String(decoding: buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self)
+            var identity = ProcessIdentity(pid: listener.pid, executable: path)
+            // Outermost bundle folds Electron helpers and other child executables into the parent app.
+            if let range = path.range(of: ".app/") {
+                let appPath = String(path[..<range.upperBound].dropLast())
+                if let bundle = Bundle(path: appPath) {
+                    identity.bundleID = bundle.bundleIdentifier
+                    identity.bundleName = bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? bundle.object(forInfoDictionaryKey: "CFBundleName") as? String
+                    identity.appPath = appPath
+                }
+            }
+            identities[listener.pid] = identity
             return !path.hasPrefix("/System/") && !path.hasPrefix("/usr/libexec/") && !path.hasPrefix("/usr/sbin/")
         }
         // Read only cwd descriptors for matched processes; never arguments or environment.
@@ -22,7 +34,8 @@ public enum LocalDiscovery {
                 if line.first == "n", pids.contains(pid) { directories[pid] = String(line.dropFirst()) }
             }
         }
-        return Snapshot(listeners: listeners, directories: directories)
+        for (pid, directory) in directories { identities[pid]?.workingDirectory = directory }
+        return Snapshot(listeners: listeners, directories: directories, identities: identities)
     }
     private static func run(_ arguments: [String]) throws -> String {
         let process = Process(), output = Pipe(), errors = Pipe()
