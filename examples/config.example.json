@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "ignoredProcesses": ["example-background-helper"],
+  "ignoredPorts": [],
+  "services": [
+    {
+      "id": "example-web",
+      "name": "示例开发站",
+      "process": "node",
+      "port": 3000,
+      "group": "开发环境",
+      "url": "http://localhost:3000/docs",
+      "directory": "~/Projects/example",
+      "configPath": "~/Projects/example/config.json",
+      "accountReference": "example-account"
+    }
+  ]
+}
