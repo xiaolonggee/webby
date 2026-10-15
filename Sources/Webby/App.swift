@@ -12,7 +12,16 @@ import WebbyCore
     var busy = false
     var updated: Date?
     var configuration = Configuration.empty
-    var demo = CommandLine.arguments.contains("--demo")
+    var demo: Bool
+    init(arguments: [String] = CommandLine.arguments, configURL: URL? = nil) {
+        demo = arguments.dropFirst().contains("--demo")
+        if let configURL { self.configURL = configURL }
+    }
+    func leaveDemo() {
+        // Never leave synthetic rows visible after removing their demo label.
+        services = []; directories = [:]; selected = nil; updated = nil
+        configuration = .empty; error = nil; demo = false
+    }
     var configURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/Webby/config.json")
     var filtered: [Service] { services.filter { (scope == "全部服务" || (scope == "自动发现" ? $0.config == nil : $0.config != nil)) && (search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || $0.listeners.contains { String($0.port).contains(search) }) } }
     func refresh() async {
@@ -63,7 +72,7 @@ struct MenuContent: View {
     var store: Store
     @Environment(\.openWindow) private var openWindow
     var body: some View {
-        Text("Webby · 服务织网")
+        Text(store.demo ? "Webby · 演示模式 · 虚构服务" : "Webby · 服务织网")
         Text(store.error == nil ? "\(store.services.filter(\.isListening).count) 个服务在监听" : "检测失败")
         Button("打开 Webby") { openWindow(id: "main"); NSApp.activate(ignoringOtherApps: true) }
         Button("刷新服务") { Task { await store.refresh() } }.disabled(store.busy)
@@ -90,7 +99,7 @@ struct MainView: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack { VStack(alignment: .leading, spacing: 6) { Text(store.scope).font(.title2.bold()); Text(store.demo ? "演示数据 · 不扫描本机" : "监听快照，不代表业务健康").font(.caption).foregroundStyle(.secondary) }; Spacer(); if store.busy { ProgressView().controlSize(.small) } }.padding(20)
                 if store.demo {
-                    HStack { Label("演示模式 · 虚构服务", systemImage: "theatermasks"); Spacer(); Button("查看本机服务") { store.demo = false; store.selected = nil; Task { await store.refresh() } } }.font(.caption).padding(12).background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 10)).padding(.horizontal, 20)
+                    HStack { Label("演示模式 · 虚构服务", systemImage: "theatermasks"); Spacer(); Button("查看本机服务") { store.leaveDemo(); Task { await store.refresh() } } }.font(.caption).padding(12).background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 10)).padding(.horizontal, 20)
                 }
                 WebTrail(destination: store.scope + " · " + (store.services.first { $0.id == store.selected }?.name ?? "服务节点"), listening: store.services.first { $0.id == store.selected }?.isListening ?? false).padding(.horizontal, 24).padding(.bottom, 12)
                 if let error = store.error { Text(error).foregroundStyle(.orange).padding() }

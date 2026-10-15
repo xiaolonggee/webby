@@ -11,7 +11,7 @@
 open dist/Webby.app
 ```
 
-应用仅作本地 ad-hoc 签名，未作 Developer ID 签名或公证，不修改 Gatekeeper。也可 `swift run Webby`。安全界面演示：`open dist/Webby.app --args --demo`，该模式不会扫描本机，也不会读取钥匙串；账号值均为虚构示例。
+应用仅作本地 ad-hoc 签名，未作 Developer ID 签名或公证，不修改 Gatekeeper。也可 `swift run Webby`。正常首次启动及再次启动默认实时发现，演示状态不持久化。只有显式 `--demo` 才进入演示，`--demo-dark` 单独使用不会开启演示。主窗口与菜单栏均标识演示；退出演示会先清空合成数据再刷新。安全界面演示：`open dist/Webby.app --args --demo`，该模式不会扫描本机，也不会读取钥匙串；账号值均为虚构示例。
 
 ```sh
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
